@@ -1,0 +1,1 @@
+1.此分页是hibernate3继承HibernateTemplate  时候的分页

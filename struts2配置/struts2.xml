@@ -1,0 +1,142 @@
+1.与spring整合后的简单配置
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <constant name="struts.devMode" value="false" />
+    
+    <constant name="struts.objectFactory" value="spring"></constant>
+					
+    <package name="default" namespace="/" extends="struts-default">
+
+        <default-action-ref name="index" />
+
+        <global-results>
+            <result name="error">/error.jsp</result>
+        </global-results>
+
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="error"/>
+        </global-exception-mappings>
+
+        <action name="login" class="loginaction">
+            <result name="success" type="redirectAction">${tage}</result>
+            <result name="input">/login.jsp</result>
+        </action>
+        
+        <action name="admin" class="loginaction">
+        	<result>/display.jsp</result>
+        </action>
+        
+        <action name="ordinary" class="loginaction">
+        	<result>/ordinary.jsp</result>
+        </action>
+        
+        <action name="update" class="updateaction">
+        	<result>/update.jsp</result>
+        </action>
+        
+        <action name="saveupdate" class="saveaction">
+        	<result>/display.jsp</result>
+        </action>
+       
+    </package>
+
+</struts>
+
+
+2.包含数据校验 通配符  动态方法调用 action之间的跳转 等
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+
+    <constant name="struts.enable.DynamicMethodInvocation" value="true"/>
+    <!-- 配置访问路径的后缀 -->
+    <!-- <constant name="struts.action.extension" value="do,action"></constant> -->
+    <!-- 指定默认编码集，作用于HttpServletRequest的setCharacterEnoocoding -->
+   <!--  <constant name="struts.i18n.encoding" value="UTF-8"></constant> -->
+    <constant name="struts.devMode" value="true" />
+			<!-- name包名称必须唯一  其他包继承的时候使用 -->
+			<!-- namespace减少重复代码 
+			如果namespace="test"  访问路径就为test/login
+			abstract="true" 就不能有action相当于接口
+			-->
+    <package name="default" namespace="/" extends="struts-default">
+    
+		<!-- 配置自定义拦截器 -->
+		<interceptors>  
+		<interceptor name="authority" class="com.pb.intercept.LgonIntercept"></interceptor>
+			<interceptor-stack name="mydefault">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="authority"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<default-interceptor-ref name="mydefault"></default-interceptor-ref>
+        <default-action-ref name="index" />
+	 	
+        <global-results>
+            <result name="error">/error.jsp</result>
+            <!-- <result name="login">/login.jsp</result>  -->          
+        </global-results>
+		
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="error"/>
+        </global-exception-mappings>
+		<!-- action名称的搜索顺序 
+		/adda/sada/asa/login一级一级往上找，最后找默认的命名空间
+		-->
+		
+        <action name="login_*" class="com.pb.web.action.LoginAction" method="{1}">
+            <!-- <result type="redirectAction"> redirectAction重定向
+                         重定向以后的jsp..不能放在web-info下面
+            -->	 
+            <!-- xml方式配置校验器用到input视图 -->  
+            <result name="input">/login.jsp</result>      
+            <result>	
+               /display.jsp
+            </result>           
+        </action>
+        
+        <action name="show" class="com.pb.web.action.showaction">
+        	<result>/show.jsp</result>
+        	<!-- <interceptor-ref name="mydefault"></interceptor-ref>
+        	<result name="login">/login.jsp</result> -->
+        </action>
+        
+        <action name="index2" class="com.pb.web.action.LoginAction" method="{1}">
+            <result type="redirectAction">
+            <!-- 以下叫做action的属性注入 -->
+                <param name="actionName">index1</param>
+                <param name="namespace">/test</param>
+                <!-- 逐级往上找 -->
+                <!-- <param name="namespace">/test/aswddw/sawwww</param> -->
+            </result>
+        </action>
+    </package>
+    
+ <!-- 包名不能重名 -->
+<package name="default1" namespace="/test" extends="struts-default">
+    <action name="index1">
+            <result>
+                /index.jsp
+            </result>
+        </action>
+</package>
+	
+    <include file="example.xml"/>
+
+</struts>
+
+
+
+
+

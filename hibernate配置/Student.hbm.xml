@@ -1,0 +1,51 @@
+班级表学生表关联（多对一（正对学生）   一对多（针对班级））
+
+1.创建Student.hbm.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.pb.domain">
+    <class name="Student">
+        <id name="id">
+            <generator class="native"/>
+        </id>
+        <property name="name"/>
+        <property name="email"/>
+        <property name="birthday"/>
+        
+        <many-to-one name="classes" column="classesid" fetch="join"></many-to-one>
+    </class>
+
+</hibernate-mapping>
+
+
+班级：
+
+2.创建 Classes.hbm.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.pb.domain">
+    <class name="Classes">
+        <id name="id">
+            <generator class="native"/>
+        </id>
+        <property name="name"/>
+        
+	    <set name="student" lazy="false">  <!-- lazy="false" -->
+		    <key column="classesid"></key>
+		    <one-to-many class="com.pb.domain.Student"/>
+		</set>  
+    </class>
+
+</hibernate-mapping>
+
+
+3.
+

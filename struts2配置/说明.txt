@@ -1,0 +1,12 @@
+1.LoginAction-conversion.properties 文件用于配置类型转换器，只针对某一action 配置在与action同一包下
+
+2.xwork-conversion.properties 文件用于配置全局类型转换器  放在src下
+
+3.LoginAction-validation.xml 文件用于数据校验   所有方法  配置在与action同一包下
+
+4.LoginAction-login_test-validation.xml 文件用与数据校验  校验指定方法   配置在与action同一包下
+
+5.DateTypeConverter.java  文件与 1. 2.结合使用  才生效  配置在 例：com.pb.utils.DateTypeConverter
+
+
+*注意命名规则*

@@ -1,0 +1,5 @@
+1.ehcache.xml 文件配置在src目录下面，用于hibernate的二级缓存
+
+2.hibernate.cfg.xml 文件配置在src目录下面 用于hibernate的整体配置
+
+3.Student.hbm.xml  文件配置在与javabean同一包下 用于与数据库表进行映射

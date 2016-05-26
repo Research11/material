@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	 <bean id="DataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		    <property name="url" value="jdbc:mysql:///u4t27"/>
+		    <property name="username" value="root"/>
+		    <property name="password" value="root"/>  
+	  </bean>
+
+	  <bean id="SessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	    <property name="dataSource" ref="DataSource"/>
+	    <property name="mappingResources">
+		      <list>
+		        <value>com/pb/domain/Student.hbm.xml</value>
+		        <value>com/pb/domain/Classes.hbm.xml</value>
+		      </list>
+		  </property>
+		    <property name="hibernateProperties">
+			    <value>
+				  hibernate.dialect=org.hibernate.dialect.MySQLDialect
+				</value>
+		  </property>
+	  </bean>
+    
+	 <bean id="studentDao" class="com.pb.dao.StudentDaoImpl">
+		<property name="sessionFactory" ref="SessionFactory"/>
+	 </bean> 
+	 
+	 <bean id="classes" class="com.pb.dao.ClassesDaoImpl">
+			<property name="sessionFactory" ref="SessionFactory"/>
+	 </bean> 
+	 
+	 
+	 
+	 
+	 
+	
+	<bean id="student" class="com.pb.domain.Student"></bean> 
+	 <bean id="loginaction" class="com.pb.web.action.loginaction"></bean> 
+	 <bean id="updateaction" class="com.pb.web.action.updateaction"></bean> 
+	 
+	 <bean id="saveaction" class="com.pb.web.action.saveaction">
+	 	<property name="stu" ref="student"></property>
+	 </bean> 
+  	 
+	 
+	 
+	 
+	 
+	 
+  	<!-- 事物管理 -->
+	  <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  		<property name="dataSource" ref="DataSource"/>
+	  </bean>
+
+	<tx:advice id="tx-advice" transaction-manager="txManager">
+	  <tx:attributes>
+	      	  <tx:method name="save*" propagation="REQUIRED"/>
+		      <tx:method name="update*" propagation="REQUIRED"/>
+		      <tx:method name="delete*" propagation="REQUIRED"/>
+		      <tx:method name="*" propagation="SUPPORTS"/>
+	  </tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+			<aop:pointcut expression="execution(* com.pb.dao.StudentDao.*.*(..))" id="studentDaopc"/>
+			<aop:advisor advice-ref="tx-advice" pointcut-ref="studentDaopc"/>
+	</aop:config>
+
+</beans>

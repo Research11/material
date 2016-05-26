@@ -1,0 +1,93 @@
+1.连接oracle数据库的hibernate.cfg.xml
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>
+
+		<!-- 连接数据库 -->
+		<property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<property name="connection.url">jdbc:oracle:thin:@localhost:1521:orcl</property>
+		<property name="connection.username">Research</property>
+		<property name="connection.password">123</property>
+
+	<!-- 	JDBC connection pool (use the built-in) -->
+		<property name="connection.pool_size">1</property>
+
+		<!-- SQL dialect -->
+		<property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>
+
+	<!-- 	Enable Hibernate's automatic session context management -->
+		<property name="current_session_context_class">thread</property>
+
+		<!-- Disable the second-level cache -->
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">true</property>
+
+		<!--  Drop and re-create the database schema on startup -->
+		<property name="hbm2ddl.auto">update</property>
+
+		<mapping resource="com/pb/domain/person.hbm.xml"/>
+		<mapping resource="com/pb/domain/Users.hbm.xml"/>
+		
+	</session-factory>
+
+</hibernate-configuration>
+
+
+2.连接mysql数据库的hibernate.cfg.xml 包含二级缓存
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings -->
+       <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql:///u4t27</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password">root</property>
+
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">2</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Enable Hibernate's current session context -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+		<!-- 使用二级缓存 默认是开启的-->
+		<property name="cache.use_second_level_cache">true</property>
+													<!--4以前用的 org.hibernate.cache.EhCacheProvider -->
+        <property name="cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+        <!-- 配置查询缓存  注意要在一二级缓存的基础之上 -->	
+        <property name="cache.use_query_cache">true</property>					
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- <mapping resource="org/hibernate/tutorial/domain/Event.hbm.xml"/> -->
+        <mapping resource="com/pb/domain/Person.hbm.xml"/>
+		<!-- 指定那个类使用二级缓存 -->
+       <!--  <class-cache usage="read-only" class="com.pn.domain.Person"/> -->
+    </session-factory>
+
+</hibernate-configuration>
+
+3.连接mysql数据库的hibernate.cfg.xml
+
