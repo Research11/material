@@ -1,1 +1,25 @@
 1.PersonController.java 文件实现了 增删改查 基本操作  requestmapping  之间的重定向
+
+2.springmvcRest风格的crud.java  使用Rest风格的crud  要在web.xml中进行配置 filter 详情请见web.xml文件
+
+3.springmvcRest风格的crud.java   使用Rest风格的crud  要在 for表单中添加隐藏域  如下：
+
+rest删除：  <input type="hidden" name="_method" value="DELETE"/>  
+
+rest修改：  <input type="hidden" name="_method" value="PUT"/>
+
+完整如下：
+
+	<!-- 删除 -->
+	<form action="testdelete/1" method="post">
+	     <input type="hidden" name="_method" value="DELETE"/>
+	     <input type="submit" value="test rest delete">
+	</form>
+
+	<!-- 修改 -->
+	<form action="testput/1" method="post">
+	    <input type="hidden" name="_method" value="PUT"/>
+	    <input type="submit" value="test rest put">
+	</form>
+
+4.
