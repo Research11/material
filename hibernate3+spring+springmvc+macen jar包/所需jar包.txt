@@ -1,0 +1,42 @@
+1.hibernate相关jar包   版本：3.3.2.GA
+
+hibernate-core 
+
+2.spring相关jar包  版本3.0.5.RELEASE
+
+spring-core
+
+spring-context
+
+spring-orm
+
+3.springmvc相关jar包   版本3.0.5.RELEASE
+
+spring-web
+
+spring-webmvc
+
+
+其他：
+
+junit
+
+log4j				//日志相关
+
+slf4j-log4j12			//日志相关
+
+javassist
+
+jstl				//jstl表达式${}
+
+standard			//jstl表达式${}
+
+commons-dbcp			//数据库连接池
+
+aspectjweaver
+
+
+注意：到这里jar包并不完整，还缺少链接数据库jar包，数据库jar包用maven是下不下来的，存在权限问题
+
+
+  
