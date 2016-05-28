@@ -1,0 +1,116 @@
+1.Controller类
+
+package com.pb.contorller;
+
+import java.util.Date;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import com.pb.domain.Person;
+
+
+
+
+
+//要使用@Contorller注解必须配置自动扫描的包 如下：
+
+<context:component-scan base-package="com.pb.contorller"></context:component-scan>
+
+@SessionAttributes(value={"person"},types={String.class})
+@Controller
+public class Personcontorller {
+	
+//此方法如果是从数据库查出来的数据，实体属性有但是表单并没有提交过来数据，就会被保留原有的值
+//应用于修改数据操作
+
+	@ModelAttribute
+	public void getperson(Map<String,Object>map){
+
+	//此处只是模拟出来的，将来会是从数据库取出来的
+
+		Person person=new Person();		
+		person.setId(1);
+		person.setName("lisi");
+		person.setAge(22);
+		person.setEmail("lisi");
+		person.setBithday(new Date());
+		
+		map.put("person", person);
+		
+	}
+
+//如果@ModelAttribute("person") 与 @SessionAttributes(value={"person"}) 两个person一样就会出现异常
+
+//1.解决办法就是value={"person"}与"person" 不一致就可以了 2.就是在方法上加上@ModelAttribute （同上）
+
+//被@ModelAttribute修饰的方法会在所有方法执行之前执行
+
+//注意要让session中有值必须使用  map.put("person", person); 添加到request作用域中
+
+
+	@RequestMapping(value="/login")
+	public String save(@ModelAttribute("person1")Person person,Map<String,Object>map,HttpSession session){
+		
+		//session.setAttribute("person", person);
+		//map.put("person", person);
+		
+		return "display";
+    }
+
+}
+
+2.页面处理（面单）
+
+此页面就是修改部分值使用@ModelAttributes注解的示例，表单中没填的值就是原来数据库的值
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<a href="login">test sessionAttributes</a>
+<form action="login" method="post">
+	<input type="hidden" name="id" value="1"/>
+	姓名：<input type="text" name="name" value="${person.name}"/>
+	<!-- 年龄：<input type="text" name="age"/> -->
+	<!-- 邮箱：<input type="text" name="email"/> -->
+	<!-- 日期：<input type="text" name="birthday"/> -->
+	<input type="submit" value="提交"/>
+</form>
+</body>
+</html>
+
+
+3.页面取值
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	sesion中 :${sessionScope.person}
+	
+	<br/>
+	request中：${requestScope.person1}
+	<br/>
+	<!-- 是在实体类中使用了toString()方法如此使用才会有数据，不然就是一个引用而以 -->
+	原始取值：${person}
+</body>
+</html>
+
+
+

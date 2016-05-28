@@ -22,4 +22,14 @@ rest修改：  <input type="hidden" name="_method" value="PUT"/>
 	    <input type="submit" value="test rest put">
 	</form>
 
-4.
+4.DateConverter.java 文件是自定义类型转换器，要用自定义类型转换器就要在springmvc.xml文件中进行配置
+
+配置如下：详情请见springmvc.xml文件
+
+	<mvc:annotation-driven conversion-service="conversion"/>
+	<bean id="conversion" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+						<!-- 类名首字母小写 -->
+			<set><ref bean="dateConverter"/></set>
+		</property>
+	</bean>
