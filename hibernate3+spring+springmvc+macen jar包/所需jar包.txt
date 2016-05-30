@@ -35,6 +35,13 @@ commons-dbcp			//数据库连接池
 
 aspectjweaver
 
+4.数据验证
+
+hibernate-validator-annotation-processor   
+
+jboss-logging
+
+classmate
 
 注意：到这里jar包并不完整，还缺少链接数据库jar包，数据库jar包用maven是下不下来的，存在权限问题
 
