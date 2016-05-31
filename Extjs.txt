@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>树形控件</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="Extjs/resources/css/ext-all.css">
+	<script type="text/javascript" src="Extjs/adapter/ext/ext-base.js"></script>
+	<script type="text/javascript" src="Extjs/ext-all.js"></script>
+	<script type="text/javascript">
+	Ext.onReady(function(){
+		Ext.BLANK_IMAGE_URL='images/default/s.gif';
+
+		var root = new Ext.tree.AsyncTreeNode({
+				expanded : true,
+				text : '系统菜单'，
+				id : "101",
+				draggable : false,
+				iconCls : "b"
+		});
+
+		var tree = new Ext.tree.TreePanel({
+			title : '树形结构',
+			root : root,
+			border : false,
+			autoHeight : true,
+			renderTo : Ext.getBody(),
+			autoScrool : true,
+			animate : true,
+			enableDD : true,
+			containerScrool:true,
+			listeners : {
+				'beforeload' :function(node){
+
+					node.loader=new Ext.tree.TreeLoader({
+
+						url : "viewtree.do?id="+node.id,
+						baseParams : {
+
+						}
+					});
+				}
+			}  
+		});
+	});
+
+		/*Ext.onReady(function(){
+			var root = new Ext.tree.TreeNode({
+				id : "root",
+				text : "树的根"
+			});
+
+			root.appendChild(new Ext.tree.TreeNode({
+				id : "c1",
+				text : "子节点"
+
+			}));
+
+			root.appendChild(new Ext.tree.TreeNode({
+
+				id : "c2",
+				text : "子节点"
+				
+			}));
+
+			var tree =new Ext.tree.TreePanel({
+
+				renderTo : Ext.getBody(),
+				root : root,
+				width : 100
+
+			});
+
+		});*/
+	</script>
+</head>
+<body>
+</body>
+</html>
