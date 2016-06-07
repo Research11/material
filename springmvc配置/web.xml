@@ -9,6 +9,15 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  <context-param>  
+        <param-name>contextConfigLocation</param-name>  
+        <param-value>classpath:applicationContext.xml</param-value>  
+  </context-param>  
+    
+    
+  <listener>  
+     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>  
+  </listener>
  
   <!-- 此 filter是用来把 post请求转为delete put请求-->
   <filter>
