@@ -43,7 +43,8 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>springDispatcherServlet</servlet-name>
-		<url-pattern>/</url-pattern>
+		<url-pattern>*.do</url-pattern>
+		<!-- <url-pattern>/</url-pattern> 使用jquery ajax时不能用这种路径 会报$ is not defined错误js报错 -->
 	</servlet-mapping>
 	
 </web-app>
