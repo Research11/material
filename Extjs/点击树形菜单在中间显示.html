@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="Extjs/resources/css/ext-all.css">
+    <script type="text/javascript" src="Extjs/ext-all-debug.js"></script>
+    <script type="text/javascript" src="Extjs/locale/ext-lang-zh_CN.js"></script>
+    <script type="text/javascript">
+    	Ext.onReady(function(){
+    		var store=Ext.create('Ext.data.Store', {
+    storeId:'simpsonsStore',
+    fields:['name', 'email', 'phone'],
+    data:{'items':[
+        { 'name': 'Lisa',  "email":"lisa@simpsons.com",  "phone":"555-111-1224"  },
+        { 'name': 'Bart',  "email":"bart@simpsons.com",  "phone":"555-222-1234" },
+        { 'name': 'Homer', "email":"home@simpsons.com",  "phone":"555-222-1244"  },
+        { 'name': 'Marge', "email":"marge@simpsons.com", "phone":"555-222-1254"  }
+    ]},
+    proxy: {
+        type: 'memory',
+        reader: {
+            type: 'json',
+            root: 'items'
+        }
+    }
+});
+
+var mygrid=Ext.create('Ext.grid.Panel', {
+   // title: 'Simpsons',
+    store: Ext.data.StoreManager.lookup('simpsonsStore'),
+    columns: [
+        { header: 'Name',  dataIndex: 'name' },
+        { header: 'Email', dataIndex: 'email', flex: 1 },
+        { header: 'Phone', dataIndex: 'phone' }
+    ],
+    height: 200,
+    width: 600,
+    tbar:[
+    	{text:'添加'},
+    	{text:'修改'},
+    	{text:'删除'}
+    ]
+   // renderTo: Ext.getBody()
+});
+    		
+	    	var tabs = Ext.create('Ext.tab.Panel', {
+	        region : 'center',
+	        height:200
+    });
+     
+    var store = Ext.create('Ext.data.TreeStore', {
+    root : {
+        expanded : true,
+            children : [{
+            text : '应用程序管理',
+            expanded : true,
+                children : [{
+                    text : '应用程序管理',
+                    id : 'appManage',
+                    
+                    leaf : true
+                }]
+                }, {
+                    text : '页面配置管理',
+                    expanded : true,
+                    children : [{
+                        text : '页面配置管理',
+                        id : 'configManage',
+                        leaf : true
+                }, {
+                    text : ' 页面按钮配置',
+                    id : 'buttonManage',
+                    leaf : true
+                }]
+                }, {
+                    text : '用户管理',
+                    expanded : true,
+                    children : [{
+                        text : '用户管理',
+                        id : 'userManage',
+                        leaf : true
+                }, {
+                    text : '权限管理',
+                    id : 'rowManage',
+                    leaf : true
+                }]
+                }, {
+                    text : '任务管理',
+                    expanded : true,
+                    children : [{
+                        text : '任务管理',
+                        id : 'taskMange',
+                        leaf : true
+            }]
+        }]
+    }
+});
+     
+    var treePanelApp = Ext.create('Ext.tree.Panel', {
+    	//renderTo:Ext.getBody(),
+        id : 'tree-panel',
+        title : '菜单',
+        region : 'west',
+        collapsible : true,
+        split : true,
+        height : 360,
+        width : 170,
+        rootVisible : false,
+        store : store
+    });
+     
+  	var tabMap = new Ext.util.HashMap();
+treePanelApp.on('itemclick', function(view, record, item, index, e,eOpts) {
+    if (record.get('leaf')) {
+        var id = record.getId();
+        var text = record.get('text');
+        var hasTab = tabMap.get(id);
+        //console.log(hasTab);
+
+        if (!hasTab) {
+        var t;
+
+        if (id == 'appManage') {
+	        t = tabs.add({
+	        id : id,
+	        title :text,
+	        closable : true,
+	        items : [{
+	        xtype : mygrid
+	        }]
+        });
+
+        } else if (id == 'configManage') {
+	        t = tabs.add({
+	        id : id,
+	        title : record.get('text'),
+	        closable : true,
+	        items : [{
+	        xtype : 'panel',
+	        }]
+        });
+         
+        } else if (id == 'buttonManage') {
+	        t = tabs.add({
+	        id : id,
+	        title : record.get('text'),
+	        closable : true,
+	        items : [{
+	        xtype : 'panel'
+	        }]
+        });
+         
+        } else if (id == 'userManage') {
+	        t = tabs.add({
+	        id : id,
+	        title : record.get('text'),
+	        closable : true,
+	        items : [{
+	        xtype : 'panel'
+	        }]
+        });
+        } else if (id == 'rowManage') {
+	        t = tabs.add({
+	        id : id,
+	        title : record.get('text'),
+	        closable : true,
+	        items : [{
+	        xtype : 'panel'
+	        }]
+        });        
+        } else if (id == 'taskMange') {
+	        t = tabs.add({
+	        id : id,
+	        title : record.get('text'),
+	        closable : true,
+	        items : [{
+	        xtype : 'panel'
+	        }]
+        });
+        }
+         
+        t.on('close', function(tab, eps) {
+        	tabMap.removeAtKey(tab.getId());
+        })
+
+        tabMap.add(id, t);
+         
+        }//if结束
+
+        tabs.setActiveTab(id);
+
+    }//if结束
+
+});//treePanel.on结束
+  
+    Ext.create('Ext.container.Viewport', {
+        layout : 'border',
+        items : [treePanelApp, tabs]
+    });
+});   	
+</script>
+</head>
+<body>
+
+</body>
+</html>
