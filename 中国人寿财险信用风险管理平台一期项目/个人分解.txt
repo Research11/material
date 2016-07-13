@@ -1,0 +1,11 @@
+概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid
+
+1.登陆
+	通过:
+	     <welcome-file-list>
+		<welcome-file>welcome.html</welcome-file>
+	     </welcome-file-list>
+配置首页
+
+首页通过js跳转,通过 applicationContext-mvc.xml （springmvc的配置） 配置文件 配置的自动扫描的包以及前缀后缀到login.ftl页面
+
