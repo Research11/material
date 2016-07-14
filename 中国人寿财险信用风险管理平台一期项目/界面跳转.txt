@@ -1,0 +1,28 @@
+我的工作台--->我的流程：页面
+
+/gcredit/web/jsp/ext3/process/process/MyProcessListGrid.js
+
+我的工作台--->我的任务和首页的我的任务--->更多内容 是同一页面：页面
+
+/gcredit/web/jsp/ext3/process/process/todoListProcessGrid.js
+
+黑名单管理--->黑名单客户管理: 页面
+
+/gcredit/web/jsp/ext3/credit/cust/blackCust.js
+
+业务受理--->业务受理：页面
+
+/gcredit/web/jsp/ext3/credit/accept/policy.js
+
+业务受理--->个贷录入：页面
+
+/gcredit/web/jsp/ext3/credit/personloan/paccept/storeInputer.js
+
+押品管理--->押品信息管理:页面
+
+/gcredit/web/jsp/ext3/credit/collateral/collateral.js
+
+押品管理--->押品类型管理: 页面
+
+/gcredit/web/jsp/ext3/credit/collateral/collateralType.js
+

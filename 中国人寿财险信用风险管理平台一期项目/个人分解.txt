@@ -1,4 +1,4 @@
-概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid
+概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid,Quartz(任务调度框架)
 
 1.登陆
 	通过:
@@ -7,5 +7,9 @@
 	     </welcome-file-list>
 配置首页
 
-首页通过js跳转,通过 applicationContext-mvc.xml （springmvc的配置） 配置文件 配置的自动扫描的包以及前缀后缀到login.ftl页面
+2.首页通过js跳转,通过 applicationContext-mvc.xml （springmvc的配置） 配置文件 配置的自动扫描的包以及前缀后缀到login.ftl页面
+
+3.点击登录的同时，提交表单，打开session,通过安全过滤链的
+<form-login login-page="/login.action" authentication-failure-url="/checkLogin.action" default-target-url="/index.action"/>配置实现跳转
+
 
