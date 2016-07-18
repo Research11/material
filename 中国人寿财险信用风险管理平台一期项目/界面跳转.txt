@@ -22,7 +22,13 @@
 
 /gcredit/web/jsp/ext3/credit/collateral/collateral.js
 
+
+
 押品管理--->押品类型管理: 页面
 
 /gcredit/web/jsp/ext3/credit/collateral/collateralType.js
+
+web层：Controller:
+
+/gcredit/ibas-credit/src/org/ibas/credit/collateral/web/CollateralTypeController.java
 

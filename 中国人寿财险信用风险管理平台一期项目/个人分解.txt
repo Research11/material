@@ -1,4 +1,4 @@
-概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid,Quartz(任务调度框架)
+概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid,Quartz(任务调度框架),spring和Activiti的整合
 
 1.登陆
 	通过:
