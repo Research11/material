@@ -2,6 +2,10 @@
 
 /gcredit/web/jsp/ext3/process/process/MyProcessListGrid.js
 
+我发起的流程的数据源controller：/gcredit/ibas-bpm/src/org/ibas/process/web/action/BpmProcessController.java 在2292行
+
+
+
 我的工作台--->我的任务和首页的我的任务--->更多内容 是同一页面：页面
 
 /gcredit/web/jsp/ext3/process/process/todoListProcessGrid.js

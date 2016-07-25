@@ -12,4 +12,9 @@
 3.点击登录的同时，提交表单，打开session,通过安全过滤链的
 <form-login login-page="/login.action" authentication-failure-url="/checkLogin.action" default-target-url="/index.action"/>配置实现跳转
 
+4.首页我的工作台我的流程我发起的流程数据源加载流程：
+
+① js页面需要json数据同时也需要工作流的支持
+
+②要得到json数据是通过json.put()添加进去，添加的数据来源是通过jsonArr对象，jsonArr对象通过add（）添加集合，而这个集合就是最关键的一环，在转换成字符串
 
