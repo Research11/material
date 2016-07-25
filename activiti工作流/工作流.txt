@@ -1,3 +1,7 @@
+activiti案例讲解网址：http://www.aiuxian.com/article/p-2059093.html
+
+activiti:api需要下载
+
 下载后解压activiti目录结构及功能说明：
 
 1)database：里面存放的是Activiti使用到的数据库信息的sql文件，它支持的数据库类型如下图，使用时只需执行你自己的数据库类型的文件即可。如：你的数据库是MySQL，那么就执行activiti.mysql.create.*.sql即可。
