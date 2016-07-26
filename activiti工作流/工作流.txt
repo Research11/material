@@ -2,6 +2,8 @@ activiti案例讲解网址：http://www.aiuxian.com/article/p-2059093.html
 
 activiti:api需要下载
 
+流程图插件的的安装：下载：activiti-designer-5.14.1.zip  和  eclipse安装activiti需装eclipse插件20140410.zip  之后解压eclipse安装activiti需装eclipse插件20140410.zip将解压出来的四个jar包放在eclipse的plugins文件夹下，再将activiti-designer-5.14.1.zip解压出来的features和plugins两个文件夹放在eclipse的dropins文件夹下面，重新启动eclipse即可
+
 下载后解压activiti目录结构及功能说明：
 
 1)database：里面存放的是Activiti使用到的数据库信息的sql文件，它支持的数据库类型如下图，使用时只需执行你自己的数据库类型的文件即可。如：你的数据库是MySQL，那么就执行activiti.mysql.create.*.sql即可。
