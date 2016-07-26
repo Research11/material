@@ -1,0 +1,229 @@
+activiti 自定义文档：
+
+1. 在Activiti中，在创建核心的流程引擎对象时会自动建表。如果程序正常执行，mysql会自动建库，然后创建23张表
+
+//手动变编写的方式
+public class TestJunit {
+
+@Test
+
+public void createTable(){
+
+ProcessEngineConfiguration pc=ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration();
+
+pc.setJdbcUrl("jdbc:mysql://localhost:3306/activiti?useUnicode=true&characterEncoding=utf8");
+
+pc.setJdbcDriver("com.mysql.jdbc.Driver");
+
+pc.setJdbcUsername("root");
+
+pc.setJdbcPassword("123");
+
+pc.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
+
+ProcessEngine en=pc.buildProcessEngine();
+
+System.out.println(en);
+
+}
+}
+
+//通过activiti配置文件的方式
+
+添加并制定配置文件
+在Actiiti5中定制流程必定会操作到数据库，如果都像上面那样写一大段代码会非常麻烦，所以我们可以把数据库连接配置写入配置文件。
+
+在Activiti5的官方示例中并没有现成的配置文件，所以先得找到activiti-rest\WEB-INF\classes下有：
+
+ 
+
+4.5.3.1：activiti-context.xml 改成 activiti.cfg.xml
+一个类似spring结构的配置文件，清空内容后改名为activiti.cfg.xml，用来做流程引擎的相关配置。
+
+按照上面代码配置ProcessEngineConfiguration对象，主要定义数据库的连接配置和建表策略，配置文件代码如下：
+
+ 
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+<bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+
+<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/activiti" />
+
+<property name="jdbcDriver" value="com.mysql.jdbc.Driver"/>
+
+<property name="jdbcUsername" value="root"/>
+
+<property name="jdbcPassword" value="123"/>
+
+<property name="databaseSchemaUpdate" value="true"></property>
+
+</bean>
+
+</beans>
+
+ 
+Java代码如下：
+
+import org.activiti.engine.ProcessEngine;
+
+import org.activiti.engine.ProcessEngineConfiguration;
+
+import org.junit.Test;
+
+public class TestJunit {
+
+@Test
+
+public void test2(){
+
+ProcessEngine pe=ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("activiti.cfg.xml")
+
+.buildProcessEngine();
+
+System.out.println(pe);
+
+}
+}
+
+createProcessEngineConfigurationFromResource的参数值为我们添加的配置文件activiti.cfg.xml的名称，执行java代码，流程引擎对象创建成功运行后数据库会自动建表。
+
+
+//将配置文件改名为 activiti.cfg.xml 后：getDefaultProcessEngine()方法默认加载classpath下面的 activiti.cfg.xml 文件，此方法获取工作流引擎对象更简单
+
+
+java代码获取
+
+package com.pb.common;
+
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngines;
+import org.junit.Test;
+
+public class testActiviti {
+	
+	@Test
+	public void test2(){
+		ProcessEngine pe=ProcessEngines.getDefaultProcessEngine();
+		System.out.println(pe);
+	}
+	
+	
+}
+
+2. 有了流程引擎对象就可以产生各个service，service来操作数据库表
+
+各个service 的作用：
+
+RepositoryService      管理流程定义(仓库)
+
+RuntimeService         执行管理，包括启动、推进、删除流程实例等操作
+
+TaskService            任务管理
+
+HistoryService         历史管理(执行完的数据的管理)
+
+IdentityService        组织机构管理
+
+FormService            一个可选服务，任务表单管理
+
+ManagementService
+
+
+
+3.工作流执行流程：
+
+java代码:
+
+package com.pb.common;
+
+import java.util.List;
+
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.junit.Test;
+
+public class helloActiviti {
+	ProcessEngine pe=ProcessEngines.getDefaultProcessEngine();
+	//部署流程定义
+	@Test
+	public void deploymentprocess(){
+		Deployment deployment =pe.getRepositoryService().
+				createDeployment().
+				name("activiti入门程序").
+				addClasspathResource("diagrams/leave.bpmn").
+				addClasspathResource("diagrams/leave.png").
+				deploy();
+		System.out.println(deployment.getId());
+		System.out.println(deployment.getName());
+	}
+	
+	//启动流程定义
+	@Test
+	public void stsrtprocess(){
+		ProcessInstance pi=pe.getRuntimeService().startProcessInstanceByKey("hollword");
+		System.out.println(pi.getId());//流程实例id
+		System.out.println(pi.getProcessDefinitionId());//流程定义id
+	}
+	
+	//查询当前的个人任务
+	@Test
+	public void selecttask(){
+		List<Task> list=pe.getTaskService().createTaskQuery().taskAssignee("张三")//李四，王五
+		.list();
+		if(list!=null&&list.size()>0){
+			for(Task task:list){
+				System.out.println(task.getId());//任务id
+				System.out.println(task.getName());//任务的名称
+				System.out.println(task.getCreateTime());//任务的创建时间
+				System.out.println(task.getAssignee());//任务办理人
+				System.out.println(task.getProcessDefinitionId());//流程实例id
+				System.out.println(task.getExecutionId());//任务的执行对象id
+			
+			}
+		}
+	}
+	//完成我的任务
+	@Test
+	public void endTask(){
+		pe.getTaskService().complete("l04");//202,302
+		System.err.println("我的任务完成");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
