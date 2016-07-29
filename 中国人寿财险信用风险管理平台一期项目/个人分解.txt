@@ -1,5 +1,9 @@
 概述: 所需框架：hibernate,spring,springmvc,Spring Security,extjs,cxf,freemarker,md5,uuid,Quartz(任务调度框架),spring和Activiti的整合
 
+业务受理开始(业务员联系业务)--->出单员（发起保单申请，资料移交到资信调查人员）--->资信调查员
+
+（对移交的资料录入核对，填写资信调查表,获取综合调查意见）--->风险管理员（进行核保初审）--->资信调查人员（）
+
 1.登陆
 	通过:
 	     <welcome-file-list>
