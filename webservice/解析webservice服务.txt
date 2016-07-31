@@ -1,0 +1,14 @@
+1.解析wsdl(ws描述语言)解析完毕后生成Java ben
+
+wsimport http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL
+
+2.解析完毕后生成java源文件
+
+wsimport -s . http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL
+
+3.解析完毕后生成java与class源文件自定义包结构
+
+wsimport -s . -p com.pb.webservice http://ws.webxml.com.cn/WebServices/M
+obileCodeWS.asmx?WSDL
+
+

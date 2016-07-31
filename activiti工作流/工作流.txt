@@ -66,11 +66,11 @@ activiti:api需要下载
 
 1.资源库流程规则表
 
-	1) act_re_deployment  部署信息表
+	1) act_re_deployment  部署信息表(部署对象表，执行部署对象后有数据)
 
 	2) act_re_model   流程设计模型部署表
 
-	3) act_re_procdef   流程定义数据表
+	3) act_re_procdef   流程定义数据表（执行部署对象后有数据）
 
 2.运行时数据库表
 
@@ -114,6 +114,6 @@ activiti:api需要下载
 
 5.通用数据表
 
-	1) act_ge_bytearray 二进制数据表
+	1) act_ge_bytearray 二进制数据表（资源文件表，执行该部署操作后有数据）
 
 	2) act_ge_property 属性数据表存储整个流程引擎级别的数据,初始化表结构时，会默认插入三条记录，
