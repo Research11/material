@@ -11,4 +11,22 @@ wsimport -s . http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL
 wsimport -s . -p com.pb.webservice http://ws.webxml.com.cn/WebServices/M
 obileCodeWS.asmx?WSDL
 
+//发布自己的WebService
+package com.pb.mservice;
 
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+
+@WebService
+public class MyService {
+	
+	public String sayHello(String name){
+		
+		return name+"你好";
+	}
+	
+	public static void main(String[] args) {
+		
+		Endpoint.publish("地址", new MyService());
+	}
+}
