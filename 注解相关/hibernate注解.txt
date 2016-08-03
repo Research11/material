@@ -1,0 +1,58 @@
+1.实体类的注解：首先在maven管理的情况下需要加入 hibernate-annotations jar包
+
+package com.pb.entity;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="student")
+public class Student {
+	
+	Integer id;
+	String name;
+	String email;
+	Date birthday;
+	
+	 @Id
+	 @GeneratedValue(strategy=GenerationType.AUTO)
+	public Integer getId() {
+		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	@Column
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public Date getBirthday() {
+		return birthday;
+	}
+	
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+}
+

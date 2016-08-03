@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!-- 系统常用变量 linux 可以在contorller中使用@Value("#{othRep.mstrPwd}")方式给属性赋值-->
+	<util:properties id="app" location="classpath:/config/application-linux.properties"/>
+	 <!--系统常用变量 windows
+	<util:properties id="app" location="classpath:/config/application.properties"/> -->
+	
+	 <bean id="DataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		    <property name="url" value="jdbc:mysql:///research"/>
+		    <property name="username" value="root"/>
+		    <property name="password" value="root"/>
+	  </bean>
+								
+	  <bean id="SessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+	   
+	    <property name="dataSource" ref="DataSource"/>
+	
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				
+				<!--  <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop> -->
+				
+				<!-- 配置hibernate二级缓存 -->
+				
+				<!-- <prop key="hibernate.cache.provider_configuration_file_resource_path">config/ehcache-hibernate-local.xml</prop> -->
+			</props>
+		</property>
+		<property name="packagesToScan" value="com.pb.entity" />
+	  </bean>
+	  
+	  <!-- 事务管理器配置,单数据源事务 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">   <!-- autowire="byName" -->
+		<property name="sessionFactory" ref="SessionFactory"/>
+	</bean> 
+	
+	  <context:component-scan base-package="com.pb">	
+	 	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	  </context:component-scan>
+	  
+	  <tx:annotation-driven/>
+
+</beans>
