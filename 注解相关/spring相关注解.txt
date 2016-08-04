@@ -114,8 +114,10 @@ public class StudentDaoImpl implements StudentDao{
 	}*/
 
 	public Session getSession(){
-		
+	//用openSession()方法获取session会出现删除修改操作无效，不会打印sql语句
 		return sessionFactory.openSession();
+	//用getCurrentSession()方法，解决了上述问题，但是在service方法中一定要配置@Transactional事物，不然会报错
+		return sessionFactory.getCurrentSession();
 	}
 	
 	@Override
