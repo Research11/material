@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+           
+	<http auto-config='true'>
+	
+		<intercept-url pattern="/css/**" filters="none" />
+		<intercept-url pattern="/common/**" filters="none" />
+		<intercept-url pattern="/js/**" filters="none" />
+		<intercept-url pattern="/images/**" filters="none" />
+		<intercept-url pattern="/login.action*" filters="none" />
+		
+		<!-- username-parameter="username" password-parameter="password" -->
+		<form-login login-page="/login.jsp"
+					authentication-failure-url="/checkLogin.jsp?error=true" 
+										
+					default-target-url="/"/>
+					
+		<!-- 尝试访问没有权限的页面时跳转的页面 -->   
+		<access-denied-handler error-page="/common/403.jsp"/>
+					
+		<!-- 页面注销完毕后显示的页面 -->
+		<logout  logout-success-url="/login.action" invalidate-session="true"/>			
+					
+		<!-- 增加一个filter，这点与Acegi是不一样的，不能修改默认的filter了，这个filter位于FILTER_SECURITY_INTERCEPTOR之前  -->
+		<custom-filter ref="myFilter" before="FILTER_SECURITY_INTERCEPTOR"/>		
+			
+	</http>
+	
+	
+	<!-- 一个自定义的filter，必须包含authenticationManager,accessDecisionManager,securityMetadataSource三个属性，
+    	我们的所有控制将在这三个类中实现，解释详见具体配置  -->
+    	
+    <beans:bean id="myFilter" class="com.pb.filter.MyFilterSecurityInterceptor">
+        <beans:property name="authenticationManager" ref="authenticationManager"/>
+        <beans:property name="accessDecisionManager" ref="myAccessDecisionManagerBean"/>
+        <beans:property name="securityMetadataSource" ref="mySecurityMetadataSource"/>
+    </beans:bean>
+
+	<authentication-manager alias="authenticationManager">  	 
+		<authentication-provider user-service-ref="userDetailsService">		   
+		</authentication-provider>		 
+	</authentication-manager>
+	<beans:bean id="userDetailsService" class="com.pb.filter.MyUserDetailService"/>
+	
+	<!-- 访问决策器，决定某个用户具有的角色，是否有足够的权限去访问某个资源     -->	
+	<beans:bean id="myAccessDecisionManagerBean" class="com.pb.filter.MyAccessDecisionManager">
+    </beans:bean>
+ 
+    <!-- 资源源数据定义，将所有的资源和权限对应关系建立起来，即定义某一资源可以被哪些角色访问 	-->    
+    <beans:bean id="mySecurityMetadataSource" class="com.pb.filter.MyInvocationSecurityMetadataSourceService">
+    </beans:bean>
+		
+
+</beans:beans>
