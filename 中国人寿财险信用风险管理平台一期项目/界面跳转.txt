@@ -36,3 +36,8 @@ web层：Controller:
 
 /gcredit/ibas-credit/src/org/ibas/credit/collateral/web/CollateralTypeController.java
 
+
+资信调查岗：资信调查：资信调查：（出现六步操作）/gcredit/web/jsp/ext3/credit/accept/policy/policy_add.js
+
+
+

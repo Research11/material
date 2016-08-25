@@ -1,0 +1,5 @@
+1.两个文件在此目录下：
+/gcredit/web/jsp/ext3/credit/customer/customerPerson/customerPersonRenewal_view.ftl
+/gcredit/web/jsp/ext3/credit/customer/customerPerson/customerPersonRenewal_view.js
+
+需要访问的Controller为：CustomerController

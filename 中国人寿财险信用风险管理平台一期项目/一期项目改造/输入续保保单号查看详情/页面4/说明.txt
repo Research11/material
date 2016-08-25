@@ -1,0 +1,6 @@
+1.文件所在路径：
+
+/gcredit/web/jsp/ext3/credit/accptancesurvey/collateralRenewal.ftl
+/gcredit/web/jsp/ext3/credit/accptancesurvey/collateralRenewal.js
+
+2.访问的controller跟页面1,3 在同一个文件

@@ -1,0 +1,6 @@
+1.文件所在路径：
+
+/gcredit/web/jsp/ext3/credit/accptancesurvey/creditInfoRenewal.ftl
+/gcredit/web/jsp/ext3/credit/accptancesurvey/creditInfoRenewal.js
+
+2.需要访问的controller 与页面1,3,4 在同一个文件中

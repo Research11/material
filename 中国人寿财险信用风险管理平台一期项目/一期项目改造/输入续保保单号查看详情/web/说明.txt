@@ -1,0 +1,6 @@
+1.PolicyController.java文件在：/gcredit/ibas-credit/src/org/ibas/credit/accept/web/PolicyController.java
+
+
+2.CustomerController.java文件在：
+
+/gcredit/ibas-credit/src/org/ibas/credit/customer/web/CustomerController.java 路径下

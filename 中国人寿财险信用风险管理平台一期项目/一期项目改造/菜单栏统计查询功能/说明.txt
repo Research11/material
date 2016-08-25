@@ -1,0 +1,23 @@
+1.statistical.js ,statistical.ftl两个文件添加到
+
+/gcredit/web/    jsp/ext3/credit/accept/statistical.ftl 路径下
+
+2.PolicyController.java 添加了一个action访问路径 
+
+此文件在：/gcredit/ibas-credit/src/org/ibas/credit/accept/web/PolicyController.java 路径下
+
+3.配置菜单的步骤：
+
+1.配置资源组管理
+
+2.配置资源管理
+
+3.配置权限组管理
+
+4.配置权限管理
+
+5.菜单中添加并且关联资源
+
+6.用户权限设置--->角色管理  将系统查询权限赋给某一个角色
+
+7.统计查询（系统查询）资源URL为：statistical_list_view.action（必须）

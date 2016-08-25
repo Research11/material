@@ -1,0 +1,10 @@
+1.policy_edit.js 文件：添加了一个按钮两个函数
+
+放在/gcredit/web/jsp/ext3/credit/accept/policy/policy_edit.js路径下
+
+2.policyRenewal_edit.ftl ，policyRenewal_edit.js 两个文件：
+
+放在/gcredit/web/jsp/ext3/credit/accept/policy/policyRenewal_edit.js路径下
+
+注：是点击详情按钮弹出六个页面中的第一个页面，不可编辑。需要访问的Controller
+在PolicyController.java文件中

@@ -1,0 +1,5 @@
+1.两个文件所在目录（路径）：
+/gcredit/web/jsp/ext3/credit/accptancesurvey/gatherCreditInfoRenewal.ftl
+/gcredit/web/jsp/ext3/credit/accptancesurvey/gatherCreditInfoRenewal.js
+
+需要访问的Controller在 PolicyController.java 文件  跟页面一在同一个文件
