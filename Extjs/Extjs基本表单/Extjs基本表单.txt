@@ -1,0 +1,9 @@
+1.Extjs.form.Basic :基本表单  
+
+Ext.form.Basic是基本的表单组件，提供了字段管理，数据验证，表单提交，数据加载等功能，推荐使用Ext.form.Panel作为表单容器
+Ext.form.Panel会自动关联到Ext.form.Basic实例，方便字段的配置。
+
+Ext.form.Basic委托Ext.form.Action进行数据的提交和加载，默认的提交动作是Ext.form.action.Submit 采用ajax方式进行异步提交
+如果要使用原始的提交方式提交表单，可以使用Ext.form.action.standarSumit方法
+
+如果通过表单进行文件上传，则不能通过标准的ajax方式进行提交，在Extjs内部都会通过iframe模拟Ajax进行异步提交

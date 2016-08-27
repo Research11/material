@@ -1,0 +1,35 @@
+一.安装VisualSVN-Server 和 TortoiseSVN 两个安装程序
+
+安装VisualSVN-Server的时候计算机的名字不能是中文
+
+二.安装过程中会自动创建存储库也可以通过命令行的方式创建存储库
+
+1.通过命令行的方式：首先要配置环境变量 系统环境变量path添加VisualSVN Server安装文件的bin: 例如：D:\Program Files\VisualSVN Server\bin
+
+--->打开cmd创建仓库（svnadmin create f:\mypro）--->对mypro文件中的conf中的 authz,passwd,svnserve.conf三个文件进行配置
+
+(配置详见mypro文件)--->启动svn服务（svnserve -d -r mypro）--->配置客户端（eclipse中配置）--->安装svn插件--->
+
+添加svn资源库检出项目（或者新建项目--->项目右键共享项目）--->填写URL例如：svn://服务器的ip--->之后按照提示进行--->
+
+如果不能提交则删除 C盘的subversion文件里面的内容（如果URL不识别检查svn服务是否启动）
+
+
+2.通过VisualSVN Server Manager 图形界面(有启动和停止功能)
+
+在Repositories右键-->新建-->Repository...-->弹出界面按照提示操作-->Users-->新建-->User...-->填写用户名密码确认密码
+
+-->在已创建的仓库上右键-->properties-->将Everyone设置为Read Only 或 No Access-->add选择用户Ok-->应用 确定-->可以使用
+
+tortoiseSVN工具进行导入或者检出操作了-->对mypro文件中的conf中的 authz,passwd,svnserve.conf三个文件进行配置
+
+(配置详见mypro文件)-->安装svn插件--->添加svn资源库检出项目（或者新建项目--->项目右键共享项目）--->填写URL例如：svn://服务器的ip--->之后按照提示进行--->
+
+如果不能提交则删除 C盘的subversion文件里面的内容（如果URL不识别检查svn服务是否启动）
+
+
+3.eclipse中SVN插件的安装
+
+关闭eclipse-->将svn文件夹和links文件夹复制到eclipse的根目录下面-->启动eclipse
+
+注意：links文件中的文件内容为  svn文件夹所在磁盘的路径：  例：path=D:/tool/eclipse/svn

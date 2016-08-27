@@ -1,0 +1,13 @@
+[groups]
+# harry_and_sally = harry,sally
+
+[/]
+harry=rw
+
+# [/foo/bar]
+harry = rw
+# * =
+
+# [repository:/baz/fuz]
+# @harry_and_sally = rw
+* = r
