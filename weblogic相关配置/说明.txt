@@ -1,0 +1,104 @@
+1.安装weblogic (11g)
+
+安装过程中 选择定制 -->配置jdk(自己有32位的jdk就选本地jdk（选择自己的jdk的安装路径不要包含空格中文否则无法启动后台服务）没有的话随便选一个)
+
+节点管理服务器端口选择是  其他都下一步  安装就搞定了。
+
+
+2.创建服务器（创建域）
+
+开始菜单找到 QuickStart （快速开始创建weblogjic服务）--->打开界面点第一个--->第一次选择创建新的Weblogic域（会自动生成一个主服务器（AdminServer），默认的端口是7001）
+
+然后就下一步下一步--->填写用户名密码确认密码-->下一步下一步-->创建 （此时完成主服务器的创建）
+
+默认域的目录：E:\Oracle\Middleware\user_projects\domains
+
+
+3.weblogic在myeclipse中的配置
+
+window-->preferences-->找到weblogic找到11g-->BEA home ...选择 E:\Oracle\Middleware-->修改用户名密码（配置域的时候设置的）
+
+-->此时就可以部署项目了（weblogic 11g支持javaee规范是2.5  此时就要修改web.xml文件将3.0修改为2.5）
+
+
+4.开始菜单 点击Start Admin Server for Weblogic Server Domain 启动服务
+
+5.开始菜单 点击 Admin Server Console 进入后台管理（纯ui的形式）
+
+6.目录的作用：
+
+user_projects：存放域的文件夹（必须创建域才会有）
+
+E:\Oracle\Middleware\user_projects\domains\base_domain\autodeploy：用于存储主服务器部署的项目（主服务器尽量不要部署项目，是用来启动后台控制面板和管理其他服务器的）
+
+startWebLogic.cmd：启动主服务器的
+
+startManagedWebLogic.cmd：启动受管服务器的
+
+启动收官服务器的命令：cmd窗口 输入命令：E:\Oracle\Middleware\user_projects\domains\base_domain\bin\startManagedWebLogic.cmd Server-2 http://127.0.0.1:7001
+
+Server-2为受管服务器，是由主服务器来启动的
+
+
+E:\Oracle\Middleware\user_projects\domains\base_domain\servers\AdminServer：存储主服务器的配置
+
+E:\Oracle\Middleware\user_projects\domains\base_domain\servers\AdminServer\security：存储密码
+
+E:\Oracle\Middleware\user_projects\domains\base_domain\config：配置文件
+
+7.后台管理创建受管服务器
+
+点环境下面的服务-->填写服务器名称，服务器监听地址，服务器监听地址-->下一步下一步--完成
+
+用主服务器启动受管服务器：命令：E:\Oracle\Middleware\user_projects\domains\base_domain\bin\startManagedWebLogic.cmd Server-2 http://127.0.0.1:7001
+
+8.部署项目
+
+点部署（项目要是.class文件）-->安装--选择应用程序-->下一步下一步-->选中已创建的受管服务器-->下一步下一步-->完成
+
+用主服务器启动受管服务器：命令：E:\Oracle\Middleware\user_projects\domains\base_domain\bin\startManagedWebLogic.cmd Server-2 http://127.0.0.1:7001
+
+9.创建代理服务器（只做转发请求）
+
+创建过程同7 启动代理服务器 命令：E:\Oracle\Middleware\user_projects\domains\base_domain\bin\startManagedWebLogic.cmd Proxy http://127.0.0.1:7001
+
+Ctrl+c停止服务
+
+创建集群（后台进行）：环境下的集群-->新建-->填写名称，消息传输模式（选择多点），多点传送地址（不用改），多点传送端口（例如：7777）
+
+然后点集群-->添加-->服务-->选择服务器（受管）-->下一步
+
+
+10.给代理服务器配置集群转发的信息
+
+开始菜单打开配置向导（由于之前创建域没有配置集群，现在要扩展域，必须在创建代理服务器创建集群，在集群添加服务之后进行）：Configuration Wizard
+
+-->选择扩展现有的域-->下一步-->选择要扩展的域-->下一步-->选择中间的方框（远程调用接口转发请求http）-->下一步-->选择中间两个方框（受管服务器集群和计算机，部署和服务）
+
+-->下一步-->下一步-->下一步-->下一步-->创建代理列（打对钩）-->下一步下一步-->扩展。
+
+11.把项目部署到集群就可以部署到所有计算机
+
+点部署-->在集群中部署（选择集群中的所有服务器）之后下一步下一步 部署就完成了
+
+
+12.
+
+
+注：部署之前要配置 weblogic.xml 文件
+
+配置如下：（也就是 / 后面加上项目名）
+
+<!DOCTYPE weblogic-web-app PUBLIC "-//BEA Systems, Inc.//DTD Web Application 8.1//EN" "http://www.bea.com/servers/wls810/dtd/weblogic810-web-jar.dtd">
+<weblogic-web-app>
+<context-root>/weblogictest</context-root>
+</weblogic-web-app>
+
+
+将E:\Oracle\Middleware\user_projects\domains\base_domain\apps\下的  OracleProxy4_Cluster-0_Proxy 部署到Proxy代理服务器
+
+还是部署-->安装--选择应用程序（就是OracleProxy4_Cluster-0_Proxy）-->选择代理服务器（Proxy）-->完成
+
+到此集群就配置完毕了！！！！
+
+
