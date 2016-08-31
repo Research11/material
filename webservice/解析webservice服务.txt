@@ -30,3 +30,7 @@ public class MyService {
 		Endpoint.publish("µÿ÷∑", new MyService());
 	}
 }
+
+http://9.1.121.11:8003/webServiceCenter/services/CenterEntryService?wsdl
+
+http://9.1.120.123:7021/CLPCECIF/services/ECIFServicesPort?wsdl
