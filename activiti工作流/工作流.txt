@@ -66,11 +66,11 @@ activiti:api需要下载
 
 1.资源库流程规则表
 
-	1) act_re_deployment  部署信息表(部署对象表，执行部署对象后有数据)
+	1) act_re_deployment  部署信息表(部署对象表，执行部署对象后有数据,此表存的是部署时候填写的name)
 
 	2) act_re_model   流程设计模型部署表
 
-	3) act_re_procdef   流程定义数据表（执行部署对象后有数据）
+	3) act_re_procdef   流程定义数据表（执行部署对象后有数据,此表存的是流程图.png和.bpmn文件）
 
 2.运行时数据库表
 
