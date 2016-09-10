@@ -225,12 +225,74 @@ public class helloActiviti {
 //流程结束后 act_ru_execution 运行时流程执行实例表 act_ru_identitylink 运行时流程人员表 act_ru_task 运行时任务节点表 数据清空
 
 
+    //查询流程定义（查询的功能很多这里只是做部分举例）
+
+@Test
+  public void findProcessDefinition(){
+	  List<ProcessDefinition> list=pe.getRepositoryService().createProcessDefinitionQuery()//创建流程定义查询对象
+	  						   //.deploymentId("")//使用部署对象id查询
+	  						   //.processDefinitionId("")//使用流程定义对象id查询
+	  						   //.processDefinitionKey("")//使用流程定义对象的key查询
+	  						   //.processDefinitionNameLike("")//使用流程定义对象的名字模糊查询
+	  						   .orderByProcessDefinitionVersion().asc()//使用流程定义对象的版本号排序
+	  						   //.orderByProcessDefinitionName().desc()//使用流程定义对象的名字排序
+	  						   .list();
+	  						   //.singleResult()唯一结果集
+	  							//.count()查询总记录数
+	  							//.listPage(0, 0)
+	  
+	  for(ProcessDefinition processDefinition:list){
+		   System.out.println(processDefinition.getId()+"\n"+ //流程定义的key+版本号+随机生成数
+				  			 processDefinition.getName()+"\n"+//对应bpmn文件中的name值
+				  			 processDefinition.getKey()+"\n"+//对应bpmn文件中的id值
+				  			processDefinition.getResourceName()+"\n"+//资源文件名称
+				  			processDefinition.getVersion()//当流程定义的key相同的情况下版本升级
+				  );
+		  					 
+		  
+		  
+	  }
+  }
 
 
 
 
+ //删除流程定义
+
+//删除流程定义
+	public void deleteProcessDefinition(){
+			String deploymentid="1";
+
+			pe.getRepositoryService().deleteDeployment(deploymentid);//不带级联的删除（只能删除没有启动的流程，如果流程启动就会抛出异常）
+			pe.getRepositoryService().deleteDeployment(deploymentid, true);//带级联的删除
+			System.out.println("删除成功");
+		
+	}
 
 
+//查看流程图
+	
+	public void viewProcessDefinition() throws IOException{
+		String deploymentid="1";
+		List<String> list=pe.getRepositoryService().getDeploymentResourceNames(deploymentid);
+		String resourcesname="";
+		if(list!=null&&list.size()>0){
+			for(String name:list){
+				if(name.indexOf(".png")>=0){
+					resourcesname=name;
+				}
+			}
+		}
+		
+		//获取流程图的输入流
+		InputStream is=pe.getRepositoryService().getResourceAsStream(deploymentid, resourcesname);
+		
+		File file =new File("D:/"+resourcesname);
+		
+		FileUtils.copyInputStreamToFile(is, file);
+		
+		//将图片生成到d盘之后再在页面加载图片就可以了
+	}
 
 
 
