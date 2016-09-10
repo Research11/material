@@ -143,6 +143,8 @@ FormService            一个可选服务，任务表单管理
 ManagementService
 
 
+*注：一个流程流程实例只有一个，执行对象可以有多个
+
 
 3.工作流执行流程：
 
@@ -175,6 +177,40 @@ public class helloActiviti {
 		System.out.println(deployment.getId());
 		System.out.println(deployment.getName());
 	}
+
+
+//部署流程定义（zip方式部署）
+	@Test
+	public void deploymentprocesszip(){
+		InputStream is=this.getClass().getClassLoader().getResourceAsStream("diagrams/helloworld.zip");
+		ZipInputStream zis=new ZipInputStream(is);
+		pe.getRepositoryService().createDeployment().name("zip方式部署流程定义").addZipInputStream(zis).deploy();
+	}
+
+
+//部署流程定义
+		@Test
+		public void deploymentprocesszip(){
+			//获得输入流的三种方式
+			//从classpath的根路径下加载指定名称文件
+			
+			//InputStream is=this.getClass().getClassLoader().getResourceAsStream("diagrams/ProcessVariable.bpmn");
+			//InputStream is1=this.getClass().getClassLoader().getResourceAsStream("diagrams/ProcessVariable.png");
+			
+			//从当前包下加载指定名称的文件 当前包指的是：com.pb.common
+			//InputStream is2=this.getClass().getResourceAsStream("ProcessVariable.bpmn");
+			//InputStream is3=this.getClass().getResourceAsStream("ProcessVariable.png");
+			
+			//从classpath的根路径下加载指定名称文件
+			InputStream is4=this.getClass().getResourceAsStream("/diagrams/ProcessVariable.bpmn");
+			InputStream is5=this.getClass().getResourceAsStream("/diagrams/ProcessVariable.png");
+			
+			pe.getRepositoryService().createDeployment()
+									 .name("流程定义变量")
+									 .addInputStream("ProcessVariable.bpmn", is4)
+									 .addInputStream("ProcessVariable.png", is5)
+									 .deploy();
+		}
 
 
 	
@@ -294,13 +330,123 @@ public class helloActiviti {
 		//将图片生成到d盘之后再在页面加载图片就可以了
 	}
 
+//流程定义没有真正的修改操作
+
+修改的解决方案就是重新部署流程通过流程定义的key启动（也就是每次启动都是最新版本）
 
 
 
+//查看最新版本的流程定义
+
+	public void selectnewProcessDefinition(){
+		List<ProcessDefinition> list=pe.getRepositoryService().createProcessDefinitionQuery().orderByProcessDefinitionVersion().asc().list();
+		//LikedHashMap是有序的
+		Map<String,ProcessDefinition>map=new LinkedHashMap<String,ProcessDefinition>();
+		
+		if(list!=null&&list.size()>0){
+			
+			for(ProcessDefinition pd:list){
+				
+				map.put(pd.getKey(), pd);
+			}
+			
+		}
+		//map集合转成list集合
+		List<ProcessDefinition>pdlist=new ArrayList<ProcessDefinition>(map.values());
+		
+		for(ProcessDefinition processDefinition:pdlist){
+			  System.out.println(processDefinition.getId()+"\n"+ //流程定义的key+版本号+随机生成数
+					  			 processDefinition.getName()+"\n"+//对应bpmn文件中的name值
+					  			 processDefinition.getKey()+"\n"+//对应bpmn文件中的id值
+					  			processDefinition.getResourceName()+"\n"+//资源文件名称
+					  			processDefinition.getVersion()//当流程定义的key相同的情况下版本升级
+					  );
+			  			
+		  }
+	
+	}
 
 
+//删除key相同的所有不同版本的流程定义
+	public void deleteversionProcessDefinition(){
+		String processDefinitionKey="hollword";
+		List<ProcessDefinition>list=pe.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processDefinitionKey).list();
+		
+		for(ProcessDefinition pd:list){
+			
+			//pe.getRepositoryService().deleteDeployment(pd.getDeploymentId());
+			pe.getRepositoryService().deleteDeployment(pd.getDeploymentId(), true);
+			
+		}
+	}
 
 
-
+//设置流程定义变量
+		@Test
+		//影响的表act_ru_variable，act_hi_varinst
+		public void setVariable(){
+			TaskService ts=pe.getTaskService();
+			//不使用Local后一次设置值会覆盖前一次的值
+			//ts.setVariableLocal("604", "请假天数", 3);//与当前任务绑定act_ru_variable表中8task_id有值，就只有当前能看到
+			//ts.setVariable("604", "请假日期", new Date());
+			//ts.setVariable("604", "请假原因", "回家探亲");
+			//使用bean必须实现序列化，要求bean属性不能再改变，否则抛出异常，添加固定版本号
+			Leave leave=new Leave();
+				leave.setLeaveday(3);
+				leave.setLeavedate(new Date());
+				leave.setLeavereason("想回家看看");
+			ts.setVariable("1004", "人员信息", leave);
+			
+			System.out.println("设置变量成功");	
+		}
+		
+		//获取流程定义变量
+		@Test
+	public void getVariable(){
+		TaskService ts=pe.getTaskService();
+		/*Integer day=(Integer) ts.getVariable("802", "请假天数");
+		Date date=(Date) ts.getVariable("802", "请假日期");
+		String str=(String) ts.getVariable("802", "请假原因");*/
+		
+		Leave leave=(Leave) ts.getVariable("1004", "人员信息");
+		
+		System.out.println("请假天数："+leave.getLeaveday());
+		System.out.println("请假日期："+leave.getLeavedate());
+		System.out.println("请假原因："+leave.getLeavereason());
+		
+	}
+	
+	//模拟设置和获取流程定义变量
+	
+	public void setandgetVariable(){
+		//与流程实例，执行对象（正在执行）
+		RuntimeService rs=pe.getRuntimeService();
+		//与任务相关的（正在执行的）
+		TaskService ts=pe.getTaskService();
+		
+		//设置流程变量(使用执行对象id,和流程变量名称，设置流程变量的值，一次只能设置一个值)
+		//rs.setVariable(arg0, arg1, arg2);
+		//Map集合的key就是流程变量的名称，value就是流程变量的值
+		//rs.setVariables(arg0, arg1);
+		
+		//设置流程变量(使用执行对象id,和流程变量名称，设置流程变量的值，一次只能设置一个值)
+		//ts.setVariable(arg0, arg1, arg2);
+		//Map集合的key就是流程变量的名称，value就是流程变量的值
+		//ts.setVariables(arg0, arg1);
+		
+		//rs.startProcessInstanceById(arg0, arg1);//启动流程实例的同事可设置流程变量，用Map集合
+		//ts.complete(arg0, arg1);//完成任务设置流程变量.用Map集合
+	
+		//rs.getVariable(arg0, arg1);使用执行对象id和流程变量名称，获取流程变量
+		//rs.getVariables(arg0);使用执行对象id，获取所有流程变量，将流程变量放置到map集合中
+		//rs.getVariables(arg0, arg1); 使用执行对象id,获取流程变量值，通过设置流程变量的名称存放到集合中，获取指定流程变量名称的流程变量值存放到map集合中
+		
+		//ts.getVariable(arg0, arg1);使用任务id和流程变量名称，获取流程变量
+		//ts.getVariables(arg0);使用任务id，获取所有流程变量，将流程变量放置到map集合中
+		//ts.getVariables(arg0, arg1); 使用任务id,获取流程变量值，通过设置流程变量的名称存放到集合中，获取指定流程变量名称的流程变量值存放到map集合中
+		
+		
+	}
+			
 
 
