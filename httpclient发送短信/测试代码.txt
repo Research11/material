@@ -1,0 +1,40 @@
+package com.pb.common;
+
+import java.io.IOException;
+
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
+
+public class SMSTest {
+
+	public static void main(String[] args) throws Exception, IOException {
+		HttpClient client = new HttpClient();  
+        PostMethod post = new PostMethod("http://gbk.sms.webchinese.cn/");  
+        post.addRequestHeader("Content-Type",  
+                "application/x-www-form-urlencoded;charset=gbk");// 在头文件中设置转码  
+        NameValuePair[] data = { new NameValuePair("Uid", "SMSU"), // 注册的用户名  
+                new NameValuePair("Key", "2497dbf05ebf16b09dc0"), // 注册成功后,登录网站使用的密钥  
+                new NameValuePair("smsMob", "15130971572"), // 手机号码  
+                new NameValuePair("smsText", "尊敬的李豪先生：恭喜您获得OPPOR9手机一部，11月3日至5日早上10点-下午17点凭手机号码及身份证到北京市海淀区花园东路天翼营业厅领取，逾时视为放弃。谢谢您对电信产品的关注，祝您生活愉快。 如果以上信息没有解决您的问题，电话咨询。电话-13718632263（http://www.oppo.com/），24小时在线喔！【OPPO官网】") };//设置短信内容          
+
+    post.setRequestBody(data);  
+  
+    client.executeMethod(post);  
+    Header[] headers = post.getResponseHeaders();  
+    int statusCode = post.getStatusCode();  
+   //System.out.println("statusCode:" + statusCode);  
+    for (Header h : headers) {  
+        System.out.println(h.toString());  
+    }  
+    String result = new String(post.getResponseBodyAsString().getBytes(  
+            "gbk"));  
+    System.out.println(result);  
+    post.releaseConnection();  
+		
+	}
+
+}
+
+

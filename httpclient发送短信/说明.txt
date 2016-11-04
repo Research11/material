@@ -1,0 +1,10 @@
+SMS登录注册地址：
+
+http://sms.webchinese.cn/default.shtml
+
+
+所需jar包：
+
+commons-codec-1.4.jar
+commons-httpclient-3.1.jar
+commons-logging-1.1.1.jar
