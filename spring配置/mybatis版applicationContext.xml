@@ -52,5 +52,30 @@
     <aop:pointcut id="productServiceMethods" expression="execution(* com.pb.service.*.*(..))"/>
     <aop:advisor advice-ref="txAdvice" pointcut-ref="productServiceMethods"/>
   </aop:config>
+  
+<!--任务调度相关配置-->
+<bean id="jobBean" class="com.pb.util.RunProcedure" />  
+<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+    <property name="targetObject" ref="jobBean" />  
+    <property name="targetMethod" value="execute" />  
+    <!--将并发设置为false-->  
+    <property name="concurrent" value="false" />  
+</bean>  
+  
+<bean id="trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail" ref="jobDetail" />  
+                <!--表达式，我的是每 30 执行一次-->  
+               <property name="cronExpression" value="10 41 17 * * ?" />   <!--  格式: [秒] [分] [小时] [日] [月] [周] [年] -->
+</bean>  
+  
+<!--  总管理类如果将lazy-init='false'那么容器启动就会执行调度程序   -->  
+<bean id="startQuertz" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false" >  
+        <property name="triggers">  
+            <list>  
+                <!--作业调度器,list下可加入其他的调度器-->  
+            <ref bean="trigger" />  
+            </list>  
+    </property>  
+</bean>
 
 </beans>
