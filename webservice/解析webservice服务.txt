@@ -34,3 +34,110 @@ public class MyService {
 http://9.1.121.11:8003/webServiceCenter/services/CenterEntryService?wsdl
 
 http://9.1.120.123:7021/CLPCECIF/services/ECIFServicesPort?wsdl
+
+
+WebService:web服务（可以再谋台电脑中调用世界上其他电脑的javaben）
+
+技术需求：
+
+1、手机号码归属地
+
+2、天气预报查询
+
+   数据格式（xml、json）
+
+3、手机淘宝 ：Http方式给服务器发送请求获取数据
+
+手机号码归属地查询网址：http://www.webxml.com.cn
+
+手机号码归属地查询main方法中调用的方式：（需要httpclient HTTP 协议的客户端编程工具包）
+
+(需要导入三个jar包：commons-logging-1.1.1.jar  commons-httpclient-3.1.jar  commons-codec-1.4.jar)
+
+1.get方法：
+
+	HttpClient client = new HttpClient();
+		GetMethod get = new GetMethod("http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx/getMobileCodeInfo?"
+				+ "mobileCode=13718632263&userID=");
+		int code = client.executeMethod(get);
+		System.out.println("状态吗："+code);
+		String result = get.getResponseBodyAsString();
+		System.out.println("查询结果："+result);
+
+2.post方法：
+
+	HttpClient client = new HttpClient();
+		PostMethod post = new PostMethod("http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx/getMobileCodeInfo");
+		post.setParameter("mobileCode", "13718632263");
+		post.setParameter("userID", "");
+		int code = client.executeMethod(post);
+		System.out.println("状态吗："+code);
+		String result = post.getResponseBodyAsString();
+		System.out.println("查询结果："+result);
+
+
+F:\tool\java\jdk1.6.0_31
+
+C:\Program Files (x86)\Java\jdk1.8.0_101
+
+
+webservice推荐的解决方案：wsimport 生成java文件导入工程通过new的方式调用服务
+
+http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL（是生成xml服务说明文件的地址）
+
+1.wsimport -s . http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL  (号码归属地查询导出文件的命令)
+
+2.解析完毕后生成java源文件class源文件
+
+wsimport -s . http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL
+
+3.解析完毕后生成java与class源文件 自定义包结构
+
+wsimport -s . -p com.pb.webservice http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL
+
+
+将生成的.java文件导入项目  
+
+//通过查看xml文件new服务调用方法传递参数获得返回结果
+public static void main(String[] args) throws Exception {
+
+		MobileCodeWS mcws = new MobileCodeWS();
+		MobileCodeWSSoap mw = mcws.getMobileCodeWSSoap();
+		String str = mw.getMobileCodeInfo("13718632263", "");
+		System.out.println("查询结果:"+str);
+
+
+}
+
+
+
+/发布自己的WebService
+package com.pb.mservice;
+
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+
+@WebService
+public class MyService {
+	
+	public String sayHello(String name){
+		
+		return name+"你好";
+	}
+	
+	public static void main(String[] args) {
+		
+		Endpoint.publish("http://192.168.2.109:9966/ws", new MyService());
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
