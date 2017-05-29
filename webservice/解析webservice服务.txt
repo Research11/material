@@ -111,7 +111,7 @@ public static void main(String[] args) throws Exception {
 
 
 
-/发布自己的WebService
+/发布自己的WebService（服务端代码）
 package com.pb.mservice;
 
 import javax.jws.WebService;
@@ -132,12 +132,220 @@ public class MyService {
 }
 
 
+//调用自己发布的webservice
+
+cmd: 执行 wsimport -s . -p com.pb.webservice  http://192.168.2.109:9966/ws?WSDL 命令 将生成的java 文件导入项目
+
+public static void  main (String[] args) {
+
+	MyServiceService myservice = new MyServiceService();
+	
+		MyService serivce = myservice.getMyServicePort(); 
+
+		String str = serivce.sayHello("张三");
+
+		System.out.println("返回的结果为："+str);
+}
 
 
+//通过ajax调用webservice
+ 后台代码：
+
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		MyServiceService myservice = new MyServiceService();
+		
+		MyService serivce = myservice.getMyServicePort(); 
+
+		String str = serivce.sayHello("张三");
+		
+		System.out.println(str);
+		
+		
+	}
+
+前台代码：
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="jquery/jquery.js"></script>  
+<script type="text/javascript" language="javascript">
+function ajaxTest(){ 
+    $.ajax({  
+   data:"name="+$("#name").val(), 
+   type:"post",  
+   dataType: 'json',  
+
+   url:"ajaxservlet", //这里不能写成http://192.168.2.109:9966/ws （存在跨域问题）
 
 
+  // async:false, //设置同步假死 默认就是异步加载的
+   error:function(bushiside){  
+       alert("出错了！！:"+bushiside.msg);  //没有启动服务的时候会被执行
+   },  
+   success:function(bushiside){  
+       alert("success:"+bushiside.msg);  
+       $("#result").html(bushiside.msg) ;  
+   }  
+   }); 
+}
+
+</script>
+</head>
+<body>
+
+<form action="ajaxservlet" method="post">
+	<input type="text" id="name" name="" onblur="ajaxTest();"/>
+	<input type="submit" value="提交"/>
+</form>
+
+</body>
+</html>
 
 
+注解修改wsdl 文件设置
+
+package com.pb.webservice;
+
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+
+@WebService(
+		name="MyService1",           //实现类的名字默认为类名（MyService）<binding> 标签
+		serviceName="MyServiceService1",    //默认的服务名为类名加Service (MyServiceService) <service> 标签
+		portName="MyServicePort1",	   //服务类的后面加port  (MyServicePort)  <service>下面的 <port> 标签
+		targetNamespace=""   //默认为服务包的倒写
+)
+//serviceName="MyServiceService1" <service> 标签,  是生成文件后要 new的类		
+//portName="MyServicePort1" <service>下面的 <port> 标签 , new完类的对象要调用的方法，name="MyService1" 为返回类型
+//返回值调用的才是 @WebMethod(operationName="sayHello1") 发布的方法
+
+public class MyService {
+	
+	@WebMethod(exclude=true) //默认public方法可以发布为ws服务 ，如果要排除配置 exclude=true
+	public String sayHello(String name){
+		
+		return name+"你好";
+	}
+	
+	@WebMethod(operationName="sayHello1")//修改方法名
+	//@WebResult(name="result") 修改返回值的名字
+	public @WebResult(name="result") String sayHello(@WebParam(name="name1")String name,@WebParam(name="age1")int age){
+		
+		return name+"你好!年龄为:"+age;
+	}
+	
+// schemaLocation="http://192.168.2.109:9966/ws?xsd=1"  schemaLocation后面的地址可以看返回值和参数
+
+// 通过修改后调用如下：
+	/*
+	MyServiceService1 ms = new MyServiceService1();
+	MyService1 service = ms.getMyServicePort1();
+	String str = service.getsayHello1();
+	*/
+	public static void main(String[] args) {
+
+		//访问服务说明 xml的地址: http://192.168.2.109:9966/ws?WSDL
+		Endpoint.publish("http://192.168.2.109:9966/ws", new MyService());
+	}
+}
 
 
+使用cxf发不自己的webservice服务（导入jar包） 配置文件如下：
 
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://cxf.apache.org/jaxws  	
+	http://cxf.apache.org/schemas/jaxws.xsd 
+	http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
+	
+	<!--日志-->
+	<bean id="loggingInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+	<bean id="outLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+	<bean id="Myser" class="com.pb.webservice.MyService"/>
+	
+	
+	<!--对外提供数据服务接口-->
+	<jaxws:server address="/hello">
+		<jaxws:serviceBean>
+			<ref bean="Myser"/>
+		</jaxws:serviceBean>
+		<jaxws:inInterceptors>  
+            <ref bean="loggingInterceptor"/> 
+  		</jaxws:inInterceptors> 
+	    <jaxws:outInterceptors>
+	        <ref bean="outLoggingInterceptor"/>
+	    </jaxws:outInterceptors>
+	</jaxws:server>
+</beans>
+
+cxf (webservice) 服务类：（通过注解做修改一样使用）
+
+@WebService
+public class MyService {
+	
+	
+	public String sayHello(String name){
+		
+		return name+"你好";
+	}
+}
+
+
+web.xml的配置：
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>WebService</display-name>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>  
+  </welcome-file-list>
+  
+  	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:applicationContext-cxf.xml</param-value>
+	</context-param>
+
+	<listener>
+  		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+ 	</listener>
+
+   <servlet>      
+        <servlet-name>CXFServlet</servlet-name>      
+        <servlet-class>      
+            org.apache.cxf.transport.servlet.CXFServlet       
+        </servlet-class>
+        <load-on-startup>0</load-on-startup>      
+    </servlet>     
+ 
+    <servlet-mapping>      
+        <servlet-name>CXFServlet</servlet-name>      
+        <url-pattern>/ws/*</url-pattern>      
+    </servlet-mapping>
+
+</web-app>
+
+
+通过cxf spring 启动的服务：服务说明地址为：http://192.168.2.109:8080/WebService/ws/hello?WSDL
+
+WebService：项目名
+
+ws：servlet的拦截路径
+
+hello：cxf配置文件中的<jaxws:server address="/hello">
+
+?WSDL:固定写法
