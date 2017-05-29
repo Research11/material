@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	 <bean id="DataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		    <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		    <property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+		    <property name="username" value="Research"/>
+		    <property name="password" value="123"/>  
+	  </bean>
+
+	  <bean id="SessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	    <property name="dataSource" ref="DataSource"/>
+	    <property name="mappingResources">
+		      <list>
+		        <value>com/pb/domain/Person.hbm.xml</value>
+		        <value>com/pb/domain/Users.hbm.xml</value>
+		      </list>
+		  </property>
+		    <property name="hibernateProperties">
+			    <value>
+				  org.hibernate.dialect.Oracle9Dialect
+				</value>
+		  </property>
+	  </bean>
+    	
+	 <!-- <bean id="personDao" class="com.pb.dao.PersonDaoImpl">
+		<property name="sessionFactory" ref="SessionFactory"/>
+	 </bean> 
+	 
+	 <bean id="usersDao" class="com.pb.dao.UsersImpl">
+		<property name="sessionFactory" ref="SessionFactory"/>
+	 </bean>  -->
+  	 
+  	<!-- 事物管理 -->
+	  <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  		<property name="dataSource" ref="DataSource"/>
+	  </bean>
+
+	<tx:advice id="tx-advice" transaction-manager="txManager">
+	  <tx:attributes>
+	      	  <tx:method name="save*" propagation="REQUIRED"/>
+		      <tx:method name="update*" propagation="REQUIRED"/>
+		      <tx:method name="delete*" propagation="REQUIRED"/>
+		      <tx:method name="*" propagation="SUPPORTS"/>
+	  </tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+			<aop:pointcut expression="execution(* com.pb.dao.PersonDao.*.*(..))" id="studentDaopc"/>
+			<aop:advisor advice-ref="tx-advice" pointcut-ref="studentDaopc"/>
+	</aop:config>
+	
+	
+<--任务调度配置相关-->	
+<bean id="jobBean" class="com.pb.util.RunProcedure" />  
+<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+    <property name="targetObject" ref="jobBean" />  
+    <property name="targetMethod" value="execute" />  
+    <!--将并发设置为false-->  
+    <property name="concurrent" value="false" />  
+</bean>  
+  
+<bean id="trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail" ref="jobDetail" />  
+                <!--表达式，我的是每 30 执行一次-->  
+               <property name="cronExpression" value="10 16 18 * * ?" />   <!--  格式: [秒] [分] [小时] [日] [月] [周] [年] -->
+</bean>  
+  
+<!--  总管理类如果将lazy-init='false'那么容器启动就会执行调度程序   -->  
+<bean id="startQuertz" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false" >  
+        <property name="triggers">  
+            <list>  
+                <!--作业调度器,list下可加入其他的调度器-->  
+            <ref bean="trigger" />  
+            </list>  
+    </property>  
+</bean> 
+
+</beans>
