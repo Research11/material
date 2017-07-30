@@ -1,0 +1,426 @@
+1.部署流程定义
+
+/**
+     * 部署流程
+     * 
+     * @param req
+     * @param res
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "process_activiti_deploy.action", method = RequestMethod.POST)
+    public ModelAndView deploy(@RequestParam MultipartFile[] fileName, HttpServletRequest req, HttpServletResponse res) {
+        res.setContentType("text/html");
+        Map<String, Object> m1 = new HashMap<String, Object>();
+        try {
+           
+            for (MultipartFile myfile : fileName) {
+                if (myfile.isEmpty()) {
+                    log.error("上传文件为空！");
+                } else {
+
+                    //如果用的是Tomcat服务器，则文件会上传到\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\文件夹中  
+//                  String realPath = "D:\\myUpload\\";  
+                    //这里不必处理IO流关闭的问题，因为FileUtils.copyInputStreamToFile()方法内部会自动把用到的IO流关掉，我是看它的源码才知道的  
+                    FileUtils.copyInputStreamToFile(myfile.getInputStream(), new File(upload_path, myfile.getOriginalFilename()));
+                    
+
+                    String barFileName = upload_path + myfile.getOriginalFilename();
+
+                    ZipInputStream inputStream = new ZipInputStream(new FileInputStream(new File(barFileName)));
+
+                    //                  ZipFile zipFile = new ZipFile(new File(barFileName), "GBK");
+
+                    processEngine.getRepositoryService().createDeployment().name(myfile.getOriginalFilename()).addZipInputStream(inputStream).deploy();
+                }
+            }
+            m1.put("msg", ProcessCommonMessage.OPERATION_OK);
+        } catch (Exception e1) {
+            m1.put("msg", ProcessCommonMessage.OPERATION_FAILURE);
+            e1.printStackTrace();
+            LOGGER.error("Exception", e1);
+        }
+        String result = JSONUtil.setSuccess(m1);
+        super.writeResult(result, res);
+        return null;
+    }
+
+
+
+2.查看流程图
+
+ /**
+     * 查看流程图  (controller)
+     * 
+     * @param req
+     * @param res
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "process_activiti_viewDiagram.action")
+    public ModelAndView viewDiagram(HttpServletRequest req, HttpServletResponse res) throws Exception {
+
+        res.setContentType("image/png");
+
+        String processName = new String(req.getParameter("processName").getBytes("iso-8859-1"), "utf-8");
+        String version = req.getParameter("version");
+
+        InputStream imageStream = processService.viewDiagram(processName, version);
+
+        BufferedInputStream bis = new BufferedInputStream(imageStream);// 输入缓冲流
+
+        OutputStream output = res.getOutputStream();
+
+        BufferedOutputStream bos = new BufferedOutputStream(output);// 输出缓冲流
+
+        byte data[] = new byte[4096];// 缓冲字节数
+
+        int size = 0;
+        size = bis.read(data);
+        while (size != -1) {
+            bos.write(data, 0, size);
+            size = bis.read(data);
+        }
+        bis.close();
+        bos.flush();// 清空输出缓冲流
+        bos.close();
+        output.close();
+        return null;
+    }
+
+
+ /**
+     * 查看流程图 根据流程部署查看流程图（service）
+     * 
+     * @param req
+     * @param res
+     * @return
+     * @throws Exception
+     */
+    public InputStream viewDiagram(String processName, String processVersion) throws ServiceException {
+
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processName).processDefinitionVersion(Integer.valueOf(processVersion))
+                .singleResult();
+
+        String diagramResourceName = processDefinition.getDiagramResourceName();
+        // 文件流
+        InputStream imageStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName);
+
+        return imageStream;
+
+    }
+
+
+
+
+
+/**
+     * 根据taskId查看流程图 (service)
+     * 
+     * @param req
+     * @param res
+     * @return
+     * @throws Exception
+     */
+    public InputStream viewDiagramByTask(String taskId) throws ServiceException {
+
+        TaskService taskService = processEngine.getTaskService();
+        Task t = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String s = t.getProcessDefinitionId();
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(s).singleResult();
+        String diagramResourceName = processDefinition.getDiagramResourceName();
+        // 文件流
+        InputStream imageStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName);
+
+        return imageStream;
+
+    }
+
+
+3.启动流程实例
+
+
+  Map<String, Object> variables = new HashMap<String, Object>();
+            variables.put("user", Constants.PROCESS_ROLE_ZXDC);   // Constants.PROCESS_ROLE_ZXDC 就是角色名称
+            variables.put("applyUsersId", SpringSecurityUtils.getCurrentUserId());
+            String processName = PORCESS_NAME;			 //流程实例定义的可以也就是流程图中的id值
+            processEngine.getIdentityService().setAuthenticatedUserId(userId);
+
+            String processId = processEngine.getRuntimeService().startProcessInstanceByKey(processName, policy.getId(), variables).getProcessInstanceId();
+           
+            // 保存保单里面的流程IDd
+            policy.setProcessId(processId); // 流程与业务关联
+
+4.查询保单信息
+
+//账单管理主界面
+	@SuppressWarnings("unchecked")
+	public List<ReconciliationHomePage> statementsQuery(ReconciliationHomePage data) {
+		String businessKey =null;
+		List<String> busnkl = new ArrayList<String>();
+		
+		String userId = SpringSecurityUtils.getCurrentUserId();
+		ProcessInstanceQuery query = processEngine.getRuntimeService().createProcessInstanceQuery().
+				processDefinitionKey("twoCollection").involvedUser(userId).active().orderByProcessInstanceId().desc();
+		List<ProcessInstance> list = query.list();
+		for (ProcessInstance processInstance : list) {  
+            businessKey = processInstance.getBusinessKey();  
+            if (businessKey == null) {  
+                continue;  
+            }  
+            busnkl.add(businessKey);
+		
+		}
+		
+		String sql = "select b.customer_name customerName,b.policy_no policyNo,b.bill_status billStatus,d.customer_name bankName,"
+				+ "p.lease_value leaseValue,b.over_periods overPeriods,b.bank_lending bankLending,b.reconciliation_date reconciliationDate,"
+				+ "b.created_date createdDate,b.customer_documentcode customerDocumentcode,b.id id,b.customer_documentcode customerDocumentcode,b.reconciliation_issue as reconciliationIssue "
+				+ "from t_crt_policy p inner join t_crt_bill b on p.policy_no=b.policy_no inner join  t_crt_customer d on p.assured_code=d.id where b.id in (:bkeylist) ";
+      
+       String allsql = this.LikeQuery(sql, data);
+		List<ReconciliationHomePage> list1 = getSession().createSQLQuery(allsql)
+				.addScalar("customerName", Hibernate.STRING).addScalar("policyNo", Hibernate.STRING)
+				.addScalar("billStatus", Hibernate.STRING).addScalar("bankName", Hibernate.STRING)
+				.addScalar("leaseValue", Hibernate.DOUBLE).addScalar("overPeriods", Hibernate.INTEGER)
+				.addScalar("bankLending", Hibernate.DATE).addScalar("reconciliationDate", Hibernate.DATE)
+				.addScalar("createdDate", Hibernate.DATE).addScalar("customerDocumentcode", Hibernate.STRING)
+				.addScalar("id", Hibernate.STRING).addScalar("customerDocumentcode", Hibernate.STRING)
+				.addScalar("reconciliationIssue", Hibernate.STRING)
+				.setResultTransformer(Transformers.aliasToBean(ReconciliationHomePage.class)).setParameterList("bkeylist", busnkl).list();
+		return list1;
+
+}
+
+5.
+
+完成我的任务
+
+
+/**
+	 * 删除对账单信息
+	 * 
+	 * @param Bid
+	 * @return
+	 */
+	public boolean delReconciliation(String Bid,String approvalOpinions) {
+		boolean bon = false;
+		if (Bid != null) {
+			opinionsavautil.SaveOpinions(Bid, approvalOpinions);
+			reDao.delReconciliation(Bid);
+			Reconciliation reconciliation = (Reconciliation) this.getEntityDao().getSession().get(Reconciliation.class, Bid);
+			String processid = reconciliation.getProcessId();
+			Task mytask = processEngine.getTaskService().createTaskQuery().processInstanceId(processid).singleResult();
+
+			Map<String,Object> varibles = new HashMap<String,Object>();
+			
+			varibles.put("applyUsersId", SpringSecurityUtils.getCurrentUserId());// 发送人
+			varibles.put("taskID", mytask.getId());
+			varibles.put("bill", "删除");
+			varibles.put("reconciliationid", reconciliation.getId());
+			varibles.put("users","dzshg");// 放入候选人角色code
+			processEngine.getTaskService().complete(mytask.getId(),varibles);
+			bon = true;
+		}
+		return bon;
+	}
+
+
+
+
+6.查询组任务
+
+String userId = SpringSecurityUtils.getCurrentUserId();
+
+List<Roles> gl = identityService.findRolesByUser(userId);
+
+ for (Roles g : gl) {
+	String userGroupId = g.getRoleName();
+	
+	List<Task> tasklist_group = taskService.createTaskQuery().taskCandidateUser(userGroupId).orderByTaskCreateTime().asc().list();
+
+}
+
+//根据 user id查询 角色
+	public List<Roles> findRolesByUser(String userId){
+		List<UsersRoles> l = usersRolesService.getUserRolesList(userId);
+
+		List<Roles> lge = new ArrayList<Roles>();
+
+		for (UsersRoles a : l) {
+			Roles bo = a.getRoles();
+
+			lge.add(bo);
+		}
+		return lge;
+	}
+
+
+
+//显示列表需要什么在适当添加查询
+
+ ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(task.getProcessDefinitionId()).singleResult();
+
+String processId = task.getProcessInstanceId();
+
+  ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processId).singleResult();
+
+7.领取任务
+
+
+//23212是从带领取任务列表传过来的
+
+Task task = processEngine.getTaskService().createTaskQuery().processInstanceId("23212").singleResult();
+
+processEngine.getTaskService().claim(task.getId(), userId);
+
+
+8.查询保单信息
+
+/**
+	 * 审核功能查询
+	 * @param id
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<ReconciliationHomePage> getReviewCollectionList(String id ,ReconciliationHomePage data) throws Exception{
+		String userId = SpringSecurityUtils.getCurrentUserId();
+		String businessKey = null;
+		String sql="";
+		List<String> busnkl = new ArrayList<String>();
+		//Task task = processEngine.getTaskService().createTaskQuery().processInstanceId("23212").singleResult();
+//		
+//		List<ProcessInstance> list = processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).list();
+		//processEngine.getTaskService().claim(task.getId(), userId);
+		
+		List<Task> tasklist_candidateUser = processEngine.getTaskService().createTaskQuery().taskCandidateUser("dzshg").orderByTaskCreateTime().desc().list();
+		
+		for(Task task : tasklist_candidateUser){
+			System.out.println(task.getProcessInstanceId());
+		}
+		
+		ProcessInstanceQuery query = processEngine.getRuntimeService().createProcessInstanceQuery().
+				processDefinitionKey("twoCollection").involvedUser(userId).active().orderByProcessInstanceId().desc();
+		List<ProcessInstance> list = query.list();
+		
+		for (ProcessInstance processInstance : list) {  
+            businessKey = processInstance.getBusinessKey();  
+            if (businessKey == null) {  
+                continue;  
+            }  
+            busnkl.add(businessKey);
+		
+		}
+		sql = "select b.customer_name customerName,b.policy_no policyNo,b.bill_status billStatus,d.customer_name bankName,"
+				+ "p.lease_value leaseValue,b.over_periods overPeriods,b.bank_lending bankLending,b.reconciliation_date reconciliationDate,"
+				+ "b.created_date createdDate,b.customer_documentcode customerDocumentcode,b.id id,b.customer_documentcode customerDocumentcode,b.reconciliation_issue as reconciliationIssue "
+				+ "from t_crt_policy p inner join t_crt_bill b on p.policy_no=b.policy_no inner join  t_crt_customer d on p.assured_code=d.id where b.id in (:bkeylist) and b.bill_status = '4' ";
+		String allsql = this.LikeQuery(sql, data);
+		List<ReconciliationHomePage> list1 = getSession().createSQLQuery(allsql)
+				.addScalar("customerName", Hibernate.STRING).addScalar("policyNo", Hibernate.STRING)
+				.addScalar("billStatus", Hibernate.STRING).addScalar("bankName", Hibernate.STRING)
+				.addScalar("leaseValue", Hibernate.DOUBLE).addScalar("overPeriods", Hibernate.INTEGER)
+				.addScalar("bankLending", Hibernate.DATE).addScalar("reconciliationDate", Hibernate.DATE)
+				.addScalar("createdDate", Hibernate.DATE).addScalar("customerDocumentcode", Hibernate.STRING)
+				.addScalar("id", Hibernate.STRING).addScalar("customerDocumentcode", Hibernate.STRING)
+				.addScalar("reconciliationIssue", Hibernate.STRING)
+				.setResultTransformer(Transformers.aliasToBean(ReconciliationHomePage.class)).setParameterList("bkeylist",busnkl).list();
+		return list1;
+		
+	}
+
+
+9.完成我的任务（相当于是驳回或结束任务）
+
+//退回到上一级
+ TaskService taskService = processEngine.getTaskService();
+            Task task = taskService.createTaskQuery().taskId(taskID).singleResult();
+
+Map<String, Object> map = new HashMap<String, Object>();
+            map.put("taskID", taskID);
+            map.put("user", beforeRoleCode);
+            map.put("type", 2); // 确定分支
+
+taskService.complete(taskID, map);
+
+//退回到某一岗位
+ Map<String, Object> map = new HashMap<String, Object>();
+            map.put("taskID", taskID);
+            map.put("user", "zxdcg");
+            map.put("type", 5); // 确定分支
+
+taskService.complete(taskID, map);
+
+
+/**
+     * 审批不同意（直接结束）
+     * 
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "process_activiti_over.action")
+    public ModelAndView processOver(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        //      Users user = (Users) request.getSession().getAttribute("user");
+
+        String userName = SpringSecurityUtils.getCurrentUserName();
+        //      String userId=SpringSecurityUtils.getCurrentUserId();
+        //      String nextuser="";//候选人
+        String type = "0";//审批驳回
+        String approver = userName;
+        String taskID = request.getParameter("taskId");
+        String opinion = request.getParameter("message");// 审批意见
+        //      Map<String, String> map2 =processService.getFlowLogo(taskID);
+        //      String beforeinfo=map2.get("before");
+        //      String afterinfo=map2.get("after");
+        map.put("approver", approver);
+        map.put("taskID", taskID);
+        map.put("result", "退回");
+        map.put("user", "");
+        map.put("type", type);
+	//添加批注信息
+        processEngine.getTaskService().addComment(taskID, null, "退回:" + opinion);
+
+        //      try {
+        //          processService.agree(taskID, map);
+        //      } catch (ServiceException e) {
+        //          LOGGER.error("Exception",e);
+        //          String result = JSONUtil
+        //                  .setFail(ProcessCommonMessage.CANT_COMPLETE_TASK);
+        //          super.writeResult(result, response);
+        //          return null;
+        //      }
+
+        String result = JSONUtil.setSuccess(null);
+        super.writeResult(result, response);
+        return null;
+    }
+
+
+
+10.获取批注信息
+
+public List<Comment> getProcessComments(String taskId) {
+        List<Comment> historyCommnets = new ArrayList<>();
+//         1) 获取流程实例的ID
+        Task task = this.taskService.createTaskQuery().taskId(taskId).singleResult();
+        ProcessInstance pi =runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+//       2）通过流程实例查询所有的(用户任务类型)历史活动   
+        List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery().processInstanceId(pi.getId()).activityType("userTask").list();
+//       3）查询每个历史任务的批注
+        for (HistoricActivityInstance hai : hais) {
+            String historytaskId = hai.getTaskId();
+            List<Comment> comments = taskService.getTaskComments(historytaskId);
+            // 4）如果当前任务有批注信息，添加到集合中
+            if(comments!=null && comments.size()>0){
+                historyCommnets.addAll(comments);
+            }
+        }
+//       5）返回
+         return historyCommnets;
+    }    
