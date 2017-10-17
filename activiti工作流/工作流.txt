@@ -42,7 +42,7 @@ activiti:api需要下载
 
 服务类：ReposHoryService
 
-	RuntimeService
+	RuntimeService     执行管理，包括启动、推进、删除流程实例等操作
 	
 	HistoryService
 
